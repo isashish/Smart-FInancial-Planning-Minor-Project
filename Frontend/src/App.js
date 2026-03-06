@@ -9,6 +9,10 @@ import WhatIf     from './pages/WhatIf';
 import Chatbot    from './pages/Chatbot';
 import { calcHealth } from './utils';
 
+
+import { Routes, Route } from "react-router-dom";
+import SignIn from './components/SignIn';
+
 const NAV = [
   { id: 'dashboard',  label: 'Dashboard',        icon: '⬡', emoji: '📊' },
   { id: 'profile',    label: 'Financial Profile', icon: '◈', emoji: '👤' },
@@ -183,8 +187,25 @@ function AppInner() {
 
 export default function App() {
   return (
-    <ThemeProvider>
+    <Routes>
+    <Route
+        path="/signin"
+        element={
+          <>
+            <SignIn />
+          </>
+        }
+      />
+
+      <Route
+        path="/"
+        element={<ThemeProvider>
       <AppInner />
     </ThemeProvider>
+    }
+      />
+
+</Routes>
+    
   );
 }
