@@ -33,11 +33,7 @@ export default function SignIn() {
 
 
   const showSignUp = () => {setShowSignUpForm(true)};  
-
    
-   
- 
-
   return (
     <div className="si-root">
       {/* Background layers */}
@@ -161,7 +157,105 @@ export default function SignIn() {
       <div className="SignUp-component" >
         <h2 className="si-headline">Join AI-Fintech</h2>
         <p className="si-sub">Create your account to start your financial journey</p>
-     
+        
+        
+        <form onSubmit={handleSubmit}>
+
+        {/* Name */}
+          <div className={`si-field${focused === "name" ? " active" : ""}`}>
+            <label className="si-label">Full Name</label>
+            <div className="si-input-wrap">
+              <span className="si-icon">✉</span>
+              <input
+                className="si-input"
+                type="text"
+                placeholder="Your Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onFocus={() => setFocused("name")}
+                onBlur={() => setFocused(null)}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Email */}
+          <div className={`si-field${focused === "email" ? " active" : ""}`}>
+            <label className="si-label">Email address</label>
+            <div className="si-input-wrap">
+              <span className="si-icon">✉</span>
+              <input
+                className="si-input"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onFocus={() => setFocused("email")}
+                onBlur={() => setFocused(null)}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Password */}
+          <div className={`si-field${focused === "password" ? " active" : ""}`}>
+            <label className="si-label">Password</label>
+            <div className="si-input-wrap">
+              <span className="si-icon">🔒</span>
+              <input
+                className="si-input"
+                type={showPass ? "text" : "password"}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setFocused("password")}
+                onBlur={() => setFocused(null)}
+                required
+              />
+              <button
+                type="button"
+                className="si-toggle"
+                onClick={() => setShowPass((v) => !v)}
+                tabIndex={-1}
+              >
+                {showPass ? "🙈" : "👁"}
+              </button>
+            </div>
+          </div>
+
+         {/* Confirm Password */}
+          <div className={`si-field${focused === "confirmPassword" ? " active" : ""}`}>
+            <label className="si-label">Confirm Password</label>
+            <div className="si-input-wrap">
+              <span className="si-icon">🔒</span>
+              <input
+                className="si-input"
+                type={showPass ? "text" : "password"}
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                onFocus={() => setFocused("confirmPassword")}
+                onBlur={() => setFocused(null)}
+                required
+              />
+              <button
+                type="button"
+                className="si-toggle"
+                onClick={() => setShowPass((v) => !v)}
+                tabIndex={-1}
+              >
+                {showPass ? "🙈" : "👁"}
+              </button>
+            </div>
+          </div>
+        
+
+          {/* Submit */}
+          <button className="si-btn" type="submit" disabled={loading}>
+            <div className="si-btn-shine" />
+            {loading ? <span className="si-spinner" /> : "Sign Up →"}
+          </button>
+        </form>
     
    
     
