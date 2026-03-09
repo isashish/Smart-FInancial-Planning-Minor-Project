@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useTheme } from '../context/ThemeContext';
 import { Card, StatCard, RangeInput, Badge, ImgBanner, ChartTooltip } from '../components/UI';
@@ -14,7 +14,20 @@ export default function Debt() {
   const [strategy,   setStrategy]   = useState('avalanche');
   const [investRet,  setInvestRet]  = useState(12);
   const [extra,      setExtra]      = useState(5000);
-
+useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    fetch('http://localhost:5000/api/loans', {
+      headers: { Authorization: `Bearer ${token}` },
+    }).then(r => r.json()).then(data => {
+      if (data.loans?.length) setLoans(data.loans.map(l => ({
+        id: l._id, name: l.name,
+        principal: l.principalAmount,
+        rate: l.annualInterestRate,
+        months: l.tenureMonths,
+      })));
+    }).catch(console.error);
+  }, []);
   const sorted   = [...loans].sort((a, b) => strategy === 'avalanche' ? b.rate - a.rate : a.principal - b.principal);
   const totalEMI = loans.reduce((s, l) => s + calcEMI(l.principal, l.rate, l.months), 0);
   const totalInt = loans.reduce((s, l) => { const e = calcEMI(l.principal, l.rate, l.months); return s + (e * l.months - l.principal); }, 0);
@@ -77,7 +90,19 @@ export default function Debt() {
             </ResponsiveContainer>
           </Card>
 
-          <button onClick={() => setLoans(ls => [...ls, { id: Date.now(), name: 'New Loan', principal: 100000, rate: 10, months: 24 }])}
+          <button onClick={async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const res = await fetch('http://localhost:5000/api/loans', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ name: 'New Loan', principalAmount: 100000, annualInterestRate: 10, tenureMonths: 24 }),
+    });
+    const data = await res.json();
+    const l = data.loan;
+    setLoans(ls => [...ls, { id: l._id, name: l.name, principal: l.principalAmount, rate: l.annualInterestRate, months: l.tenureMonths }]);
+  } catch { alert('Add loan failed'); }
+}}
             style={{ background: 'transparent', border: `2px dashed ${T.border}`, borderRadius: 14, padding: 14, color: T.textMuted, cursor: 'pointer', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', transition: 'border-color 0.2s' }}>
             + Add Another Loan
           </button>
@@ -96,7 +121,16 @@ export default function Debt() {
               <Card key={loan.id} hover style={{ position: 'relative', borderLeft: `4px solid ${c}` }}>
                 <div style={{ position: 'absolute', top: 16, right: 16, display: 'flex', gap: 8, alignItems: 'center' }}>
                   <div style={{ background: c + '18', color: c, borderRadius: 20, padding: '4px 12px', fontSize: 12, fontWeight: 800 }}>#{idx + 1} Priority</div>
-                  <button onClick={() => setLoans(ls => ls.filter(l => l.id !== loan.id))}
+                  <button onClick={async () => {
+  try {
+    const token = localStorage.getItem('token');
+    await fetch(`http://localhost:5000/api/loans/${loan.id}`, {
+      method: 'DELETE', headers: { Authorization: `Bearer ${token}` },
+    });
+    setLoans(ls => ls.filter(l => l.id !== loan.id));
+  } catch { alert('Delete failed'); }
+}}
+
                     style={{ background: T.roseLight, border: 'none', color: T.rose, cursor: 'pointer', fontSize: 12, borderRadius: 8, padding: '4px 10px', fontWeight: 700, fontFamily: 'inherit' }}>✕</button>
                 </div>
                 <div style={{ marginBottom: 14 }}>

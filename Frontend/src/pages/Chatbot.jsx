@@ -38,13 +38,14 @@ Give sharp, personalized advice using Indian financial context (₹, RBI, SEBI, 
     setLoading(true);
     try {
       const history = [...msgs, userMsg].map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.text }));
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+     const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:5000/api/chat/message', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sys, messages: history }),
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ message: input.trim() }),
       });
       const d = await res.json();
-      const reply = d.content?.map(c => c.text || '').join('') || 'Sorry, could not process that.';
+      const reply = d.reply || 'Sorry, could not process that.';
       setMsgs(m => [...m, { role: 'assistant', text: reply }]);
     } catch {
       setMsgs(m => [...m, { role: 'assistant', text: '⚠️ Connection error. Please try again.' }]);

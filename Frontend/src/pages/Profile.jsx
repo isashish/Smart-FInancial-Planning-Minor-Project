@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { Card, Input, ScoreRing, Badge, ImgBanner } from '../components/UI';
 import { calcHealth, fmtK, fmt, IMGS } from '../utils';
@@ -18,7 +18,31 @@ export default function Profile({ profile, setProfile }) {
   ];
 
   const update = key => val => setProfile(p => ({ ...p, [key]: val }));
+const [saving, setSaving] = useState(false);
+  const [saved,  setSaved]  = useState(false);
 
+  const saveProfile = async () => {
+    setSaving(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:5000/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          monthlyIncome:      profile.income,
+          monthlyExpenses:    profile.expenses,
+          totalEMI:           profile.emi,
+          monthlySavings:     profile.savings,
+          monthlyInvestments: profile.investments,
+          emergencyFund:      profile.emergency,
+        }),
+      });
+      if (!res.ok) throw new Error('Save failed');
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) { alert(err.message); }
+    finally { setSaving(false); }
+  };
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <ImgBanner src={IMGS.profile} title="Financial Profile" subtitle="Build your Digital Financial Identity" color={T.blue} />
@@ -31,6 +55,13 @@ export default function Profile({ profile, setProfile }) {
           <Input label="Monthly EMI / Loans (₹)"  value={profile.emi}         onChange={update('emi')}         />
           <Input label="Monthly Savings (₹)"      value={profile.savings}     onChange={update('savings')}     />
           <Input label="Monthly Investments (₹)"  value={profile.investments} onChange={update('investments')} />
+        <button onClick={saveProfile} disabled={saving} style={{
+            width: '100%', background: `linear-gradient(135deg,${T.teal},${T.blue})`,
+            color: '#fff', border: 'none', borderRadius: 12, padding: '13px 0',
+            fontWeight: 800, fontSize: 14, cursor: 'pointer', marginTop: 6, fontFamily: 'inherit',
+          }}>
+            {saving ? 'Saving...' : saved ? '✅ Saved!' : '💾 Save Profile'}
+          </button>
           <Input label="Emergency Fund Total (₹)" value={profile.emergency}   onChange={update('emergency')}   />
         </Card>
 

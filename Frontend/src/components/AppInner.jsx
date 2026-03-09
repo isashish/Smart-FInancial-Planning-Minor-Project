@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Dashboard  from '../pages/Dashboard';
 import Profile    from '../pages/Profile';
 import Goals      from '../pages/Goals';
@@ -33,6 +33,37 @@ export default function AppInner() {
     { id: 2, name: 'Home Down Payment', target: 1500000,  saved: 200000, priority: 'High'   },
     { id: 3, name: 'Retirement Corpus', target: 10000000, saved: 500000, priority: 'Medium' },
   ]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    const H = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+    const BASE = 'http://localhost:5000/api';
+    Promise.all([
+      fetch(`${BASE}/profile`, { headers: H }).then(r => r.json()),
+      fetch(`${BASE}/goals`,   { headers: H }).then(r => r.json()),
+    ]).then(([pRes, gRes]) => {
+      const p = pRes.profile;
+      if (p) setProfile({
+        income:      p.monthlyIncome      || 0,
+        expenses:    p.monthlyExpenses     || 0,
+        savings:     p.monthlySavings      || 0,
+        emi:         p.totalEMI            || 0,
+        investments: p.monthlyInvestments  || 0,
+        emergency:   p.emergencyFund       || 0,
+      });
+      if (gRes.goals?.length) setGoals(gRes.goals.map(g => ({
+        id:       g._id,
+        name:     g.name,
+        target:   g.targetAmount,
+        saved:    g.savedAmount,
+        priority: g.priority.charAt(0).toUpperCase() + g.priority.slice(1),
+      })));
+    }).catch(() => {
+      localStorage.removeItem('token');
+      window.location.href = '/signin';
+    });
+  }, []);
 
   const score      = calcHealth(profile);
   const scoreColor = score >= 75 ? T.teal : score >= 50 ? T.amber : T.rose;
@@ -135,6 +166,19 @@ export default function AppInner() {
 
           {/* Theme Toggle + Footer */}
           <div style={{ padding: '14px 14px 18px', borderTop: `1px solid ${T.border}` }}>
+            <button onClick={() => {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/signin';
+            }} style={{
+              width: '100%', background: 'transparent',
+              border: `1.5px solid ${T.rose}44`, borderRadius: 30,
+              padding: '7px 14px', cursor: 'pointer',
+              color: T.rose, fontWeight: 700, fontSize: 12,
+              marginBottom: 8, fontFamily: 'inherit',
+            }}>
+              🚪 Logout
+            </button>
             <ThemeToggle />
             <div style={{ textAlign: 'center', marginTop: 12, fontSize: 10, color: T.textMuted, fontWeight: 500 }}>
               AI-Driven FinTech Platform<br />

@@ -11,10 +11,28 @@ export default function Goals({ goals, setGoals, profile }) {
   const { T } = useTheme();
   const [form, setForm] = useState({ name: '', target: 500000, saved: 0, priority: 'Medium' });
 
-  const addGoal = () => {
+ const addGoal = async () => {
     if (!form.name.trim()) return;
-    setGoals(g => [...g, { ...form, id: Date.now() }]);
-    setForm({ name: '', target: 500000, saved: 0, priority: 'Medium' });
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:5000/api/goals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          name: form.name, targetAmount: form.target,
+          savedAmount: form.saved, priority: form.priority.toLowerCase(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      const g = data.goal;
+      setGoals(prev => [...prev, {
+        id: g._id, name: g.name,
+        target: g.targetAmount, saved: g.savedAmount,
+        priority: g.priority.charAt(0).toUpperCase() + g.priority.slice(1),
+      }]);
+      setForm({ name: '', target: 500000, saved: 0, priority: 'Medium' });
+    } catch (err) { alert(err.message); }
   };
 
   const barData = goals.map(g => ({
@@ -95,7 +113,15 @@ export default function Goals({ goals, setGoals, profile }) {
             const c      = g.priority === 'High' ? T.rose : g.priority === 'Medium' ? T.amber : T.blue;
             return (
               <Card key={g.id} hover style={{ position: 'relative' }}>
-                <button onClick={() => setGoals(gs => gs.filter(x => x.id !== g.id))}
+                <button onClick={async () => {
+  try {
+    const token = localStorage.getItem('token');
+    await fetch(`http://localhost:5000/api/goals/${g.id}`, {
+      method: 'DELETE', headers: { Authorization: `Bearer ${token}` },
+    });
+    setGoals(gs => gs.filter(x => x.id !== g.id));
+  } catch { alert('Delete failed'); }
+}}
                   style={{ position: 'absolute', top: 16, right: 16, background: T.roseLight, border: 'none', color: T.rose, cursor: 'pointer', fontSize: 12, borderRadius: 8, padding: '4px 12px', fontWeight: 700, fontFamily: 'inherit' }}>
                   ✕ Remove
                 </button>
