@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import "../Styles/SignIn.css";
-
-const BASE = import.meta.env.VITE_API_BASE || 'https://smart-f-inancial-planning-minor-pro-chi.vercel.app/api';
-
+const BASE = process.env.REACT_APP_API_BASE || 'https://smart-f-inancial-planning-minor-pro-chi.vercel.app/api';
 export default function SignIn({ onLogin = () => {} }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

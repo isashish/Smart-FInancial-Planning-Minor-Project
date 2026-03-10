@@ -20,8 +20,7 @@ const NAV = [
   { id: 'whatif',     label: 'What-If Simulator', icon: '⬟', emoji: '🔬' },
   { id: 'chatbot',    label: 'AI Advisor',        icon: '◇', emoji: '🤖' },
 ];
-
-export default function AppInner() {
+export default function AppInner({ onLogout }) {
   const { T, isDark } = useTheme();
   const [page,    setPage]    = useState('dashboard');
   const [profile, setProfile] = useState({
@@ -38,7 +37,7 @@ export default function AppInner() {
     const token = localStorage.getItem('token');
     if (!token) return;
     const H = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
-const BASE = import.meta.env.VITE_API_BASE;
+const BASE = process.env.REACT_APP_API_BASE || 'https://smart-f-inancial-planning-minor-pro-chi.vercel.app/api';
     Promise.all([
       fetch(`${BASE}/profile`, { headers: H }).then(r => r.json()),
       fetch(`${BASE}/goals`,   { headers: H }).then(r => r.json()),
@@ -166,11 +165,7 @@ const BASE = import.meta.env.VITE_API_BASE;
 
           {/* Theme Toggle + Footer */}
           <div style={{ padding: '14px 14px 18px', borderTop: `1px solid ${T.border}` }}>
-            <button onClick={() => {
-              localStorage.removeItem('token');
-              localStorage.removeItem('user');
-              window.location.href = '/signin';
-            }} style={{
+            <button onClick={onLogout} style={{
               width: '100%', background: 'transparent',
               border: `1.5px solid ${T.rose}44`, borderRadius: 30,
               padding: '7px 14px', cursor: 'pointer',
