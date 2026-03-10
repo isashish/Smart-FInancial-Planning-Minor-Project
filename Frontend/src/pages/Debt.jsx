@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useTheme } from '../context/ThemeContext';
 import { Card, StatCard, RangeInput, Badge, ImgBanner, ChartTooltip } from '../components/UI';
 import { calcEMI, fmtK, fmt, IMGS } from '../utils';
-const BASE = import.meta.env.VITE_API_BASE || 'https://smart-f-inancial-planning-minor-pro-chi.vercel.app/api';
+const BASE = process.env.REACT_APP_API_BASE || 'https://smart-f-inancial-planning-minor-pro-chi.vercel.app/api';
 export default function Debt() {
   const { T } = useTheme();
   const [loans, setLoans] = useState([

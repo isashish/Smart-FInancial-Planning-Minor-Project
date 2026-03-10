@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { Card, Input, ScoreRing, Badge, ImgBanner } from '../components/UI';
 import { calcHealth, fmtK, fmt, IMGS } from '../utils';
-const BASE = import.meta.env.VITE_API_BASE || 'https://smart-f-inancial-planning-minor-pro-chi.vercel.app/api';
+const BASE = process.env.REACT_APP_API_BASE || 'https://smart-f-inancial-planning-minor-pro-chi.vercel.app/api';
 export default function Profile({ profile, setProfile }) {
   const { T } = useTheme();
   const score   = calcHealth(profile);

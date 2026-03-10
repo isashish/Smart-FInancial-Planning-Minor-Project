@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import SignIn from './components/SignIn';
 import AppInner from './components/AppInner';
 
@@ -10,7 +10,11 @@ export default function App() {
   const handleLogin = () => {
     setIsLoggedIn(true);
   };
-
+const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setIsLoggedIn(false);
+  };
   return (
     <Routes>
       <Route path="/signin" element={
@@ -18,7 +22,7 @@ export default function App() {
       } />
       <Route path="/" element={
         isLoggedIn
-          ? <ThemeProvider><AppInner /></ThemeProvider>
+         ? <ThemeProvider><AppInner onLogout={handleLogout} /></ThemeProvider>
           : <Navigate to="/signin" replace />
       } />
     </Routes>
