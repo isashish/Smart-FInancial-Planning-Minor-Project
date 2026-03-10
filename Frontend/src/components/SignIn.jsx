@@ -45,7 +45,7 @@ export default function SignIn({ onLogin = () => {} }) {
         if (!res.ok) throw new Error(data.message);
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        onLogin(); window.location.href = '/';
+        onLogin();
       } else {
         const res = await fetch(`${BASE}/auth/login`, {
           method: 'POST',
@@ -56,7 +56,7 @@ export default function SignIn({ onLogin = () => {} }) {
         if (!res.ok) throw new Error(data.message);
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        onLogin(); window.location.href = '/';
+        onLogin();
       }
     } catch (err) {
       alert(err.message);
