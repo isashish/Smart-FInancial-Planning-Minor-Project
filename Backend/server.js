@@ -28,6 +28,14 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    return res.status(500).json({ message: 'Database connection failed.' });
+  }
+});
 // Routes
 app.use('/api/auth',        authRoutes);
 app.use('/api/profile',     profileRoutes);
@@ -62,14 +70,7 @@ const connectDB = async () => {
   isConnected = true;
 };
 
-app.use(async (req, res, next) => {
-  try {
-    await connectDB();
-    next();
-  } catch (err) {
-    return res.status(500).json({ message: 'Database connection failed.' });
-  }
-});
+
 
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 5000;
